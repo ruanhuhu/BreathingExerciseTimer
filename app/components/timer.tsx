@@ -25,7 +25,7 @@ function TimerSetting({
 }: TimerSettingProps) {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const data = new FormData(event.target);
+    const data = new FormData(event.target as HTMLFormElement);
     const inhaleTime = data.get("inhaleTime");
     const exhaleTime = data.get("exhaleTime");
     const trainingTime = data.get("trainingTime");
