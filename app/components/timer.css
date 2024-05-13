@@ -15,7 +15,8 @@
   font-size: 2em;
 }
 .my-app main {
-  width: 80%;
+  position: relative;
+  width: 90%;
   max-width: 400px;
   flex:1;
   margin: 20px auto;
@@ -41,20 +42,24 @@
   font-size: 16px;
 }
 .my-app .operation-button{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 20px;
   width: 80%;
   background-color: #4CAF50;
   border: none;
   color: white;
   padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
   font-size: 16px;
-  margin: 30px 10% 10px;
   cursor: pointer;
 }
 
-
+.my-app .realtime-timer{
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
 
 .my-app .info-item{
   line-height: 2em;
@@ -63,18 +68,34 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  font-size: 20px;
 }
 
-.my-app .switch-tip{
-  position: absolute;
-  top: 50%;
-  right: calc(50% - 120px);
-  transform: translate(-50%, -50%);
-  padding: 4px 8px;
-  color: #333;
-  font-size: 12px;
-  border-radius: 4px;
+.my-app .info-item.info-item-setting{
+  font-size: 16px;
+}
+
+.my-app .info-item .use-time{
+  display: inline-block;
+  width: 55px;
+}
+
+.my-app .info-item.info-item-breath-status {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.my-app .info-item.info-item-duration{
+  font-size: 120px;
+}
+
+.my-app .operation-button-stop{
+  background-color: #f44336;
+}
+.my-app .info-item-switch{
+  font-size: 20px;
   opacity: 0.8;
+  color: #666;
 }
 
 .my-app .exercise-summary{

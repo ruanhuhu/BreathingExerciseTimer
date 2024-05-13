@@ -73,8 +73,8 @@ function TimerSetting({
           />
         </label>
       </p>
-      <button type="submit" className="operation-button">
-        开始
+      <button type="submit" className="operation-button operation-button-start">
+        开 始
       </button>
     </form>
   );
@@ -82,6 +82,7 @@ function TimerSetting({
 
 // 2. 一个计时器组件，用于显示呼吸练习的时间；
 type TimerProps = {
+  breathParams: BreathParams;
   breathStatus: "inhale" | "exhale";
   exercisedTime: number;
   currentDuration: number;
@@ -89,6 +90,7 @@ type TimerProps = {
   setIsStarted: (isStarted: boolean) => void;
 };
 function Timer({
+  breathParams,
   breathStatus,
   currentDuration,
   exercisedTime,
@@ -100,16 +102,25 @@ function Timer({
   }
 
   return (
-    <div>
-      <p className="info-item">用时：{formatTime(exercisedTime)}</p>
-      <p className={isNextSwitch ? "info-item active" : "info-item"}>
-        {breathStatus}
-        {isNextSwitch && <span className="switch-tip">即将切换</span>}
+    <div className="realtime-timer">
+      <p className="info-item info-item-setting">
+        呼气：{breathParams.exhaleTime}秒，吸气：{breathParams.inhaleTime}
+        秒，时长：{breathParams.trainingTime}分钟
       </p>
-      <p className="info-item">{currentDuration}</p>
+      <p className="info-item">
+        用时：<span className="use-time">{formatTime(exercisedTime)}</span>
+      </p>
+      <p className="info-item info-item-breath-status">
+        {breathStatus === "inhale" ? "吸气" : "吐气"}
+      </p>
+      <p className="info-item info-item-duration">{currentDuration}</p>
+      {/* {isNextSwitch && <p className="info-item info-item-switch">即将切换</p>} */}
       {/* 结束按钮 */}
-      <button className="operation-button" onClick={handleEnd}>
-        结束
+      <button
+        className="operation-button operation-button-stop"
+        onClick={handleEnd}
+      >
+        结 束
       </button>
     </div>
   );
@@ -134,9 +145,9 @@ export default function BreathExerciseTimer() {
 
   // 呼吸参数
   const [breathParams, setBreathParams] = useState({
-    inhaleTime: 0,
-    exhaleTime: 0,
-    trainingTime: 0,
+    inhaleTime: 5,
+    exhaleTime: 5,
+    trainingTime: 3,
   });
 
   // 更新呼吸参数
@@ -185,7 +196,7 @@ export default function BreathExerciseTimer() {
     exercisedTimeRef.current = exercisedTime;
   }, [exercisedTime]);
 
-  // 监听开始呼吸练习，则开始计时，从 0 开始，每秒更新一次
+  // 监听开始呼吸练习，则开始计时，从设置的时间开始，每秒更新一次
   useEffect(() => {
     // 这里的代码会在 isStarted 状态变化时执行
     if (isStarted) {
@@ -193,8 +204,8 @@ export default function BreathExerciseTimer() {
       setIsFinished(false);
 
       setExercisedTime(0);
-      setCurrentDuration(0);
       setBreathStatus("inhale");
+      setCurrentDuration(breathParams.inhaleTime);
 
       saveBreathParams();
 
@@ -203,7 +214,7 @@ export default function BreathExerciseTimer() {
         if (
           exercisedTimeRef.current >= breathParams.trainingTime * 60 &&
           breathStatusRef.current === "exhale" &&
-          currentDurationRef.current >= breathParams.exhaleTime
+          currentDurationRef.current <= 0
         ) {
           clearInterval(timer);
           setIsFinished(true);
@@ -211,35 +222,35 @@ export default function BreathExerciseTimer() {
           return;
         }
 
-        // 如果当前呼吸状态为 exhale，且当前呼气时长小于设置的呼气时长，继续呼气
+        // 如果当前呼吸状态为 exhale，且当前呼气时长未达到设置的呼气时长，继续呼气
         if (
           breathStatusRef.current === "exhale" &&
-          currentDurationRef.current < breathParams.exhaleTime
+          currentDurationRef.current > 0
         ) {
-          setCurrentDuration((prevCurrentDuration) => prevCurrentDuration + 1);
+          setCurrentDuration((prevCurrentDuration) => prevCurrentDuration - 1);
           setExercisedTime((prevExercisedTime) => prevExercisedTime + 1);
         } else if (
           breathStatusRef.current === "exhale" &&
-          currentDurationRef.current >= breathParams.exhaleTime
+          currentDurationRef.current <= 0
         ) {
-          // 如果当前呼气时长大于等于设置的呼气时长，切换为 inhale，当前时长清零
+          // 如果当前呼气时长小于等于0，切换为 inhale，当前时长设置为吸气时长
           setBreathStatus("inhale");
-          setCurrentDuration(1);
+          setCurrentDuration(breathParams.inhaleTime);
           setExercisedTime((prevExercisedTime) => prevExercisedTime + 1);
         } else if (
           breathStatusRef.current === "inhale" &&
-          currentDurationRef.current < breathParams.inhaleTime
+          currentDurationRef.current > 0
         ) {
-          // 如果当前吸气时长小于设置的吸气时长，继续吸气
-          setCurrentDuration((prevCurrentDuration) => prevCurrentDuration + 1);
+          // 如果当前吸气时长未达到设置的吸气时长，继续吸气
+          setCurrentDuration((prevCurrentDuration) => prevCurrentDuration - 1);
           setExercisedTime((prevExercisedTime) => prevExercisedTime + 1);
         } else if (
           breathStatusRef.current === "inhale" &&
-          currentDurationRef.current >= breathParams.inhaleTime
+          currentDurationRef.current <= 0
         ) {
-          // 如果当前吸气时长大于等于设置的吸气时长，切换为 exhale，当前时长清零
+          // 如果当前吸气时长小于等于0，切换为 exhale，当前时长设置为呼气时长
           setBreathStatus("exhale");
-          setCurrentDuration(1);
+          setCurrentDuration(breathParams.exhaleTime);
           setExercisedTime((prevExercisedTime) => prevExercisedTime + 1);
         }
       }, 1000);
@@ -270,24 +281,19 @@ export default function BreathExerciseTimer() {
       )}
       {isStarted && (
         <main>
-          <div>
-            <p className="info-item">
-              呼气：{breathParams.exhaleTime}秒，吸气：{breathParams.inhaleTime}
-              秒，时长：{breathParams.trainingTime}分钟
-            </p>
-            <Timer
-              breathStatus={breathStatus}
-              exercisedTime={exercisedTime}
-              currentDuration={currentDuration}
-              setIsStarted={setIsStarted}
-              isNextSwitch={
-                (breathStatus === "inhale" &&
-                  currentDuration >= breathParams.inhaleTime) ||
-                (breathStatus === "exhale" &&
-                  currentDuration >= breathParams.exhaleTime)
-              }
-            />
-          </div>
+          <Timer
+            breathParams={breathParams}
+            breathStatus={breathStatus}
+            exercisedTime={exercisedTime}
+            currentDuration={currentDuration}
+            setIsStarted={setIsStarted}
+            isNextSwitch={
+              (breathStatus === "inhale" &&
+                currentDuration >= breathParams.inhaleTime) ||
+              (breathStatus === "exhale" &&
+                currentDuration >= breathParams.exhaleTime)
+            }
+          />
         </main>
       )}
     </div>
