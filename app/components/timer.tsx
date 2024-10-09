@@ -127,9 +127,9 @@ function Timer({
 }
 
 type BreathParams = {
-  inhaleTime?: number;
-  exhaleTime?: number;
-  trainingTime?: number;
+  inhaleTime?: number;  // 吸气时长
+  exhaleTime?: number;  // 呼气时长
+  trainingTime?: number;  // 练习时长
 };
 
 export default function BreathExerciseTimer() {
@@ -225,30 +225,30 @@ export default function BreathExerciseTimer() {
         // 如果当前呼吸状态为 exhale，且当前呼气时长未达到设置的呼气时长，继续呼气
         if (
           breathStatusRef.current === "exhale" &&
-          currentDurationRef.current > 0
+          currentDurationRef.current > 1
         ) {
           setCurrentDuration((prevCurrentDuration) => prevCurrentDuration - 1);
           setExercisedTime((prevExercisedTime) => prevExercisedTime + 1);
         } else if (
           breathStatusRef.current === "exhale" &&
-          currentDurationRef.current <= 0
+          currentDurationRef.current <= 1
         ) {
-          // 如果当前呼气时长小于等于0，切换为 inhale，当前时长设置为吸气时长
+          // 如果当前呼气时长小于等于1，切换为 inhale，当前时长设置为吸气时长
           setBreathStatus("inhale");
           setCurrentDuration(breathParams.inhaleTime);
           setExercisedTime((prevExercisedTime) => prevExercisedTime + 1);
         } else if (
           breathStatusRef.current === "inhale" &&
-          currentDurationRef.current > 0
+          currentDurationRef.current > 1
         ) {
           // 如果当前吸气时长未达到设置的吸气时长，继续吸气
           setCurrentDuration((prevCurrentDuration) => prevCurrentDuration - 1);
           setExercisedTime((prevExercisedTime) => prevExercisedTime + 1);
         } else if (
           breathStatusRef.current === "inhale" &&
-          currentDurationRef.current <= 0
+          currentDurationRef.current <= 1
         ) {
-          // 如果当前吸气时长小于等于0，切换为 exhale，当前时长设置为呼气时长
+          // 如果当前吸气时长小于等于1，切换为 exhale，当前时长设置为呼气时长
           setBreathStatus("exhale");
           setCurrentDuration(breathParams.exhaleTime);
           setExercisedTime((prevExercisedTime) => prevExercisedTime + 1);
